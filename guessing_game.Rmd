@@ -1,0 +1,161 @@
+---
+jupyter:
+  jupytext:
+    notebook_metadata_filter: all,-language_info
+    split_at_heading: true
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.16.0
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+# A guessing game, with cost functions
+
+You're about to play a high-stakes guessing game.
+
+We have, up our sleeve, an array of data `x`.
+
+We won't tell you anything at all about the data - not even how many values
+there are.
+
+But we are going to force you to make three guesses.
+
+Each guess is a single value.
+
+In order to make each of your three guesses, for each guess, you can ask us to
+apply one *function* to the data `x`.   We won't let you have `x`, we'll apply
+the function to `x`, and we'll tell you the result.  The result has to be
+a single number.
+
+Our usual imports to get you started:
+
+```{python}
+import numpy as np
+
+rng = np.random.default_rng()
+
+import pandas as pd
+pd.set_option('mode.copy_on_write', True)
+```
+
+To help you think about this, we've got some example data, and we're going to
+get an example `x` array out of these example data.  We won't use this `x`
+— this will just give you some data to play with.
+
+```{python}
+# Read data, and drop NA values.
+df = pd.read_csv('data/gender_stats.csv').dropna()
+df
+```
+
+```{python}
+# Use the maternal mortality ratio as an example x.
+example_x = np.array(df['mat_mort_ratio'])
+```
+
+## First cost — absolute of total deviations from your guess
+
+Here's the first cost we want you to guess for.   We want you to work out a really good guess for `your_guess` in the function below, to minimize how much you'll have to pay us.
+
+Remember, you can ask us to return a single value calculated from a function applied to `x`.  We have the `x`, and you do not.  But you might want to play with the `example_x` to work what a good guess would be.
+
+```{python}
+def cost_abs_total_deviations(x, your_guess):
+    # Deviations from your guess.
+    deviations = x - your_guess
+    total_deviations = np.sum(deviations)
+    # Make total positive, for greater cost!
+    return np.abs(total_deviations)
+```
+
+For example, here's a fairly unreliable guess — just getting a random value from the `x` array.  It's unreliable, but it's a lot better than nothing.
+
+```{python}
+# Take a random value as my guess for abs total deviations.
+atd_guess = rng.choice(example_x)
+atd_guess
+```
+
+Here's us applying the cost function to this unreliable guess:
+
+```{python}
+cost_abs_total_deviations(example_x, atd_guess)
+```
+
+OK — now have a think and an experiment to work a good function to apply to `example_x`, to give the lowest cost from `cost_abs_total_deviations`.  Then maybe reflect on why.
+
+Remember too — you don't know anything about our `x` — the value or function
+that works very well for `example_x` might not work well for our `x`.  In fact
+you might try different values for `example_x` to see whether your idea works
+for any `x`.
+
+
+## Second cost — total of the absolute deviations from your guess
+
+
+Here is the second cost function we want you to guess for.  Again, you can ask
+us to apply any function to our `x` to improve your guess `your_guess`.  It may
+or may not be the same function you used for the first guess above.
+
+```{python}
+def cost_total_abs_deviations(x, your_guess):
+    # Deviations from your guess.
+    deviations = x - your_guess
+    abs_deviations = np.abs(deviations)
+    # Total of absolute deviation
+    return np.sum(abs_deviations)
+```
+
+Here's another unreliable guess — a random value from the `x` array.
+
+```{python}
+# Take a random value as my guess for total absolute deviations.
+tad_guess = rng.choice(example_x)
+tad_guess
+```
+
+Here's us applying the cost function to this unreliable guess:
+
+```{python}
+cost_total_abs_deviations(example_x, tad_guess)
+```
+
+What is a good function to apply to `example_x`, to give the lowest cost from
+`cost_total_abs_deviations`, so you pay the minimum?
+
+
+## Third cost — total of the squared deviations from your guess
+
+
+Lastly, here's another cost function for which we want you to make a guess.  Again, you can ask us to apply a function to our `x` before you make your guess.  Again, you can ask for a different function from your previous guesses, if you want.
+
+
+```{python}
+def cost_total_squared_deviations(x, your_guess):
+    # Deviations from your guess.
+    deviations = x - your_guess
+    squared_deviations = deviations ** 2
+    # Total of squared deviation
+    return np.sum(squared_deviations)
+```
+
+Another unreliable guess:
+
+```{python}
+# Take a random value as my guess for total squared deviations.
+tsd_guess = rng.choice(example_x)
+tsd_guess
+```
+
+Apply the cost function to the guess:
+
+```{python}
+cost_total_squared_deviations(example_x, tsd_guess)
+```
+
+When you're ready, we'll reveal our `x`.
